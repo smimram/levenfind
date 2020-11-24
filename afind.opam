@@ -1,0 +1,19 @@
+opam-version: "2.0"
+name: "afind"
+version: "0.0"
+maintainer: "smimram@gmail.com"
+homepage: "https://github.com/smimram/afind/"
+authors: "Samuel Mimram"
+build: [
+  ["dune" "build" "-p" name "-j" jobs]
+]
+depends: [
+  "dune"
+  "ocaml" {>= "4.08.0"}
+]
+bug-reports: "https://github.com/smimram/afind/issues"
+dev-repo: "git+https://github.com/smimram/afind.git"
+synopsis: "Find similar files"
+description: """
+A find finds similar files.
+"""
