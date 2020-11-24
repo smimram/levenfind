@@ -59,7 +59,7 @@ let () =
     [
       "--extension", Arg.Set_string extension, "Consider only files with given extension.";
       "--non-recursive", Arg.Unit (fun () -> recursive := false), "Do not recurse into folders.";
-      "--threshold", Arg.Set_float threshold, "Threshold above which matching files are displayed (between 0 and 1)."
+      "--threshold", Arg.Float (fun x -> threshold := x /. 100.), "Threshold above which matching files are displayed (between 0 and 100%)."
     ] (fun s -> directories := s :: !directories) "afind [options] [directory]";
   let directories = if !directories = [] then ["."] else !directories in
   let files = List.map (find_files ~recursive:!recursive) directories |> List.flatten in
