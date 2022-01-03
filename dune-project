@@ -1,4 +1,5 @@
 (lang dune 2.8)
+(name afind)
 (version 0.1.0)
 (source (github smimram/afind))
 (license GPL-3.0)
