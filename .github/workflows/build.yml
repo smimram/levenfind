@@ -14,4 +14,4 @@ jobs:
     - name: Pin locally
       run: opam pin -y add -n .
     - name: Install locally
-      run: opam install -y -t afind
+      run: opam install -y -t levenfind
