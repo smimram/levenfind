@@ -6,8 +6,8 @@ description: "Find pairs of similar files according to Levenshtein distance."
 maintainer: ["Samuel Mimram <smimram@gmail.com>"]
 authors: ["Samuel Mimram <smimram@gmail.com>"]
 license: "GPL-3.0"
-homepage: "https://github.com/smimram/afind"
-bug-reports: "https://github.com/smimram/afind/issues"
+homepage: "https://github.com/smimram/levenfind"
+bug-reports: "https://github.com/smimram/levenfind/issues"
 depends: [
   "dune" {>= "2.8"}
   "odoc" {with-doc}
@@ -26,4 +26,4 @@ build: [
     "@doc" {with-doc}
   ]
 ]
-dev-repo: "git+https://github.com/smimram/afind.git"
+dev-repo: "git+https://github.com/smimram/levenfind.git"

@@ -1,5 +1,5 @@
-afind
-=====
+levenfind
+=========
 
 A tool to find pairs of similar files, typically for checking that your students
 don't cheat. It works on text files so it should be pretty much agnostic with
