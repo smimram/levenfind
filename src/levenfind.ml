@@ -3,6 +3,7 @@ let min3 (x:int) (y:int) (z:int) = min (min x y) z
 module List = struct
   include List
 
+  (** Compute the Levenstein distance of two lists. *)
   let levenstein s t =
     let m = List.length s in
     let n = List.length t in
@@ -30,6 +31,7 @@ end
 module String = struct
   include String
 
+  (** Compute the Levenstein distance of two strings. *)
   let levenstein s t =
     let m = String.length s in
     let n = String.length t in
@@ -44,6 +46,7 @@ module String = struct
     done;
     d.(m).(n)
 
+  (** Similarity ratio of two strings. *)
   let similarity s t =
     let n = max (String.length s) (String.length t) in
     float (n - levenstein s t) /. float n
@@ -51,6 +54,7 @@ end
 
 exception Error of string
 
+(** Read a whole file. *)
 let read_all fname =
   let ic = open_in fname in
   let len = in_channel_length ic in
