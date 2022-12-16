@@ -1,2 +1,2 @@
 (executable
- (public_name afind))
+ (public_name levenfind))
