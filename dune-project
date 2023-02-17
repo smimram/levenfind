@@ -8,7 +8,10 @@
 
 (generate_opam_files true)
 (package
-  (name levenfind)
-  (synopsis "Find similar files")
-  (description "Find pairs of similar files according to Levenshtein distance.")
+ (name levenfind)
+ (synopsis "Find similar files")
+ (description "Find pairs of similar files according to Levenshtein distance.")
+ (depends
+   domainslib
+ )
 )

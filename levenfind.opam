@@ -10,6 +10,7 @@ homepage: "https://github.com/smimram/levenfind"
 bug-reports: "https://github.com/smimram/levenfind/issues"
 depends: [
   "dune" {>= "2.8"}
+  "domainslib"
   "odoc" {with-doc}
 ]
 build: [

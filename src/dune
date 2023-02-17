@@ -1,2 +1,4 @@
 (executable
- (public_name levenfind))
+ (public_name levenfind)
+ (libraries domainslib)
+)

@@ -26,6 +26,11 @@ module List = struct
   let rec iter_pairs f = function
     | x::l -> List.iter (f x) l; iter_pairs f l
     | [] -> ()
+
+  (** All ordered pairs. *)
+  let rec pairs = function
+    | x::l -> (List.map (fun y -> (x,y)) l)@(pairs l)
+    | [] -> []
 end
 
 module String = struct
@@ -97,9 +102,10 @@ let () =
     let n = List.length files in
     n * (n-1) / 2
   in
-  List.iter_pairs
-    (fun fs ft ->
-       try
+  let files2 = List.pairs files |> Array.of_list in
+  let check i =
+    let fs,ft = files2.(i) in
+           try
          incr k;
          Printf.printf "\r%.02f%%%!" (float (!k * 100) /. float kmax);
          let s = read_all fs in
@@ -111,5 +117,12 @@ let () =
          if d >= !threshold then Printf.printf "\n%s / %s: %.02f%%\n%!" fs ft (100. *. d);
        with
        | Error e -> warning "%s\n%!" e
-    ) files;
+
+  in
+  let open Domainslib in
+  let pool = Task.setup_pool ~num_domains:(Domain.recommended_domain_count ()) () in
+  let check () =
+    Task.parallel_for pool ~start:0 ~finish:(Array.length files2 - 1) ~body:check
+  in
+  Task.run pool check;
   print_newline ()
