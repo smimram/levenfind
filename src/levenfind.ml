@@ -120,9 +120,11 @@ let () =
 
   in
   let open Domainslib in
+  let t = Sys.time () in
   let pool = Task.setup_pool ~num_domains:(Domain.recommended_domain_count ()) () in
   let check () =
     Task.parallel_for pool ~start:0 ~finish:(Array.length files2 - 1) ~body:check
   in
   Task.run pool check;
-  print_newline ()
+  print_newline ();
+  Printf.printf "Compared %d files in %.02f seconds.\n%!" (List.length files) (Sys.time () -. t)
