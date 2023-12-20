@@ -10,5 +10,11 @@ distance_) in order to compare contents.
 
 It takes all the file in a directory (by default the current one) and shows all
 pairs of files whose similarity is above a given threshold (60% by default). The
-algorithm is quadratic, don't be surprised if it takes some times on directories
+algorithm is quadratic, don't be surprised if it takes some time on directories
 with a few files, especially if some of those are big.
+
+## Usage
+
+```bash
+levenfind
+```

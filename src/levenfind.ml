@@ -91,6 +91,7 @@ let () =
     [
       "--extension", Arg.Set_string extension, "Consider only files with given extension.";
       "--lines", Arg.Set lines, "Compare lines instead of characters (faster but less precise).";
+      "--quiet", Arg.Unit (fun () -> verbose := false), "Don't display warnings.";
       "--non-recursive", Arg.Unit (fun () -> recursive := false), "Do not recurse into folders.";
       "--threshold", Arg.Float (fun x -> threshold := x /. 100.), "Threshold above which matching files are displayed (between 0 and 100%)."
     ] (fun s -> directories := s :: !directories) "afind [options] [directory]";
