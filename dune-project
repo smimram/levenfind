@@ -1,6 +1,6 @@
 (lang dune 2.8)
 (name levenfind)
-(version 0.1.0)
+(version 0.2.0)
 (source (github smimram/levenfind))
 (license GPL-3.0)
 (authors "Samuel Mimram <smimram@gmail.com>")
