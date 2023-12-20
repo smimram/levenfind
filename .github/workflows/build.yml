@@ -6,11 +6,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Setup OCaml
-      uses: avsm/setup-ocaml@v2
+      uses: ocaml/setup-ocaml@v2
       with:
-        ocaml-compiler: 5.0.0
+        ocaml-compiler: 5.1
     - name: Pin locally
       run: opam pin -y add -n .
     - name: Install locally
