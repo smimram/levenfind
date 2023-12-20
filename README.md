@@ -16,5 +16,13 @@ with a few files, especially if some of those are big.
 ## Usage
 
 ```bash
-levenfind
+levenfind directory
 ```
+
+Useful options include
+
+- `--extension` in order to specify the extension of files to consider
+- `--lines` in order to compare files line by line instead of character by
+  character
+- `--threshold` in order to specify the threshold of above which similar files
+  should be reported.
