@@ -15,3 +15,5 @@ jobs:
       run: opam pin -y add -n .
     - name: Install locally
       run: opam install -y -t levenfind
+    - name: Test
+      run: dune test

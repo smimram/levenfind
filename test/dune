@@ -1,0 +1,7 @@
+(rule
+ (alias runtest)
+ (deps a1 a2 x)
+ (action
+  (run ../src/levenfind.exe)
+ )
+)
