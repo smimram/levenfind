@@ -21,8 +21,9 @@ levenfind directory
 
 Useful options include
 
-- `--extension` in order to specify the extension of files to consider
+- `--extension` in order to specify the extension of files to consider,
 - `--lines` in order to compare files line by line instead of character by
-  character
+  character (this is much faster, but will consider slightly different lines as
+  distinct),
 - `--threshold` in order to specify the threshold of above which similar files
   should be reported.
