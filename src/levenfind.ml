@@ -88,13 +88,13 @@ let rec find_files ?(recursive=false) dir =
 
 let () =
   Arg.parse
-    [
-      "--extension", Arg.Set_string extension, "Consider only files with given extension.";
-      "--lines", Arg.Set lines, "Compare lines instead of characters (faster but less precise).";
-      "--quiet", Arg.Unit (fun () -> verbose := false), "Don't display warnings.";
-      "--non-recursive", Arg.Unit (fun () -> recursive := false), "Do not recurse into folders.";
-      "--threshold", Arg.Float (fun x -> threshold := x /. 100.), "Threshold above which matching files are displayed (between 0 and 100%)."
-    ] (fun s -> directories := s :: !directories) "afind [options] [directory]";
+    (Arg.align [
+        "--extension", Arg.Set_string extension, " Consider only files with given extension.";
+        "--lines", Arg.Set lines, " Compare lines instead of characters (faster but less precise).";
+        "--non-recursive", Arg.Unit (fun () -> recursive := false), " Do not recurse into folders.";
+        "--quiet", Arg.Unit (fun () -> verbose := false), " Do not display warnings.";
+        "--threshold", Arg.Float (fun x -> threshold := x /. 100.), (Printf.sprintf " Threshold above which matching files are displayed (between 0 and 100%%, default is %.00f%%)." (!threshold *. 100.))
+      ]) (fun s -> directories := s :: !directories) "levenfindfind [options] [directory]";
   let directories = if !directories = [] then ["."] else !directories in
   let files = List.map (find_files ~recursive:!recursive) directories |> List.flatten in
   List.iter (Printf.printf "Considering %s\n%!") files;
@@ -106,18 +106,18 @@ let () =
   let files2 = List.pairs files |> Array.of_list in
   let check i =
     let fs,ft = files2.(i) in
-           try
-         incr k;
-         Printf.printf "\r%.02f%%%!" (float (!k * 100) /. float kmax);
-         let s = read_all fs in
-         let t = read_all ft in
-         let d =
-           if !lines then List.similarity (String.split_on_char '\n' s) (String.split_on_char '\n' t)
-           else String.similarity s t
-         in
-         if d >= !threshold then Printf.printf "\n%s / %s: %.02f%%\n%!" fs ft (100. *. d);
-       with
-       | Error e -> warning "%s\n%!" e
+    try
+      incr k;
+      Printf.printf "\r%.02f%%%!" (float (!k * 100) /. float kmax);
+      let s = read_all fs in
+      let t = read_all ft in
+      let d =
+        if !lines then List.similarity (String.split_on_char '\n' s) (String.split_on_char '\n' t)
+        else String.similarity s t
+      in
+      if d >= !threshold then Printf.printf "\n%s / %s: %.02f%%\n%!" fs ft (100. *. d);
+    with
+    | Error e -> warning "%s\n%!" e
 
   in
   let open Domainslib in
