@@ -16,4 +16,4 @@ jobs:
     - name: Install locally
       run: opam install -y -t levenfind
     - name: Test
-      run: dune test
+      run: opam exec dune test
