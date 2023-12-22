@@ -1,4 +1,4 @@
-0.2.0 (unreleased)
+0.2.0 (2022-12-22)
 =====
 
 - Exploit multiple cores (we now need OCaml 5).
