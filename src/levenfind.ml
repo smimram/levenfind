@@ -70,6 +70,7 @@ let read_all fname =
 
 let () = assert (String.levenstein "kitten" "sitting" = 3)
 
+let domains = ref (Domain.recommended_domain_count ())
 let lines = ref false
 let verbose = ref true
 let threshold = ref 0.6
@@ -92,12 +93,18 @@ let () =
         "--extension", Arg.Set_string extension, " Consider only files with given extension.";
         "--lines", Arg.Set lines, " Compare lines instead of characters (faster but less precise).";
         "--non-recursive", Arg.Unit (fun () -> recursive := false), " Do not recurse into folders.";
+        "--parallelism", Arg.Set_int domains, " Number of threads to be run concurrently.";
         "--quiet", Arg.Unit (fun () -> verbose := false), " Do not display warnings.";
         "--threshold", Arg.Float (fun x -> threshold := x /. 100.), (Printf.sprintf " Threshold above which matching files are displayed (between 0 and 100%%, default is %.00f%%)." (!threshold *. 100.))
       ]) (fun s -> directories := s :: !directories) "levenfindfind [options] [directory]";
   let directories = if !directories = [] then ["."] else !directories in
   let files = List.map (find_files ~recursive:!recursive) directories |> List.flatten in
-  List.iter (Printf.printf "Considering %s\n%!") files;
+  let num_domains = !domains in
+  if !verbose then
+    (
+      Printf.printf "Using %d domains\n%!" num_domains;
+      List.iter (Printf.printf "Considering %s\n%!") files
+    );
   let k = ref 0 in
   let kmax =
     let n = List.length files in
@@ -122,7 +129,7 @@ let () =
   in
   let open Domainslib in
   let t = Sys.time () in
-  let pool = Task.setup_pool ~num_domains:(Domain.recommended_domain_count ()) () in
+  let pool = Task.setup_pool ~num_domains () in
   let check () =
     Task.parallel_for pool ~start:0 ~finish:(Array.length files2 - 1) ~body:check
   in

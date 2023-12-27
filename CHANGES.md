@@ -1,3 +1,8 @@
+0.2.1 (unreleased)
+=====
+
+- Add `--parallelism` option.
+
 0.2.0 (2022-12-22)
 =====
 
