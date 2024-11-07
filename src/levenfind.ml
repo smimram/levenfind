@@ -105,7 +105,7 @@ let () =
       Printf.printf "Using %d domains\n%!" num_domains;
       List.iter (Printf.printf "Considering %s\n%!") files
     );
-  let k = ref 0 in
+  let k = Atomic.make 0 in
   let kmax =
     let n = List.length files in
     n * (n-1) / 2
@@ -114,8 +114,8 @@ let () =
   let check i =
     let fs,ft = files2.(i) in
     try
-      incr k;
-      Printf.printf "\r%.02f%%%!" (float (!k * 100) /. float kmax);
+      let k = Atomic.fetch_and_add k 1 in
+      Printf.printf "\r%.02f%%%!" (float (k * 100) /. float kmax);
       let s = read_all fs in
       let t = read_all ft in
       let d =
