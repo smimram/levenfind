@@ -6,14 +6,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup OCaml
-      uses: ocaml/setup-ocaml@v2
-      with:
-        ocaml-compiler: 5.1
-    - name: Pin locally
-      run: opam pin -y add -n .
-    - name: Install locally
-      run: opam install -y -t levenfind
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Install packages
+      run: sudo apt-get -y install ocaml ocaml-dun
+    - name: Build
+      run: dune build
     - name: Test
-      run: opam exec dune test
+      run: dune test
