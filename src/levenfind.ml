@@ -122,7 +122,7 @@ let () =
         if !lines then List.similarity (String.split_on_char '\n' s) (String.split_on_char '\n' t)
         else String.similarity s t
       in
-      if d >= !threshold then Printf.printf "\n%s / %s: %.02f%%\n%!" fs ft (100. *. d);
+      if d >= !threshold then Printf.printf "\n%s / %s: %.02f%%\n%!" fs ft (100. *. d)
     with
     | Error e -> warning "%s\n%!" e
 
