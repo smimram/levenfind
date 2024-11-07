@@ -124,7 +124,6 @@ let () =
     | Error e -> warning "%s\n%!" e
 
   in
-  let t = Sys.time () in
   let task =
     let i = Atomic.make 0 in
     let l = Array.length files2 in
@@ -135,6 +134,7 @@ let () =
           Domain.cpu_relax ()
         done
   in
+  let t = Sys.time () in
   let domains = List.init num_domains (fun _ -> Domain.spawn task) in
   List.iter Domain.join domains;
   print_newline ();
