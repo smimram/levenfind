@@ -11,7 +11,7 @@ jobs:
     - name: Switch to oracular
       run: |
         sudo sed -i 's/jammy/oracular/' /etc/apt/sources.list
-        sudo apt update
+        sudo apt-get -y update
     - name: Install packages
       run: sudo apt-get -y install ocaml ocaml-dune
     - name: Build
