@@ -105,12 +105,9 @@ let () =
       Printf.printf "Using %d domains\n%!" num_domains;
       List.iter (Printf.printf "Considering %s\n%!") files
     );
-  let k = Atomic.make 0 in
-  let kmax =
-    let n = List.length files in
-    n * (n-1) / 2
-  in
   let files2 = List.pairs files |> Array.of_list in
+  let k = Atomic.make 0 in
+  let kmax = Array.length files2 in
   let check i =
     let fs,ft = files2.(i) in
     try
