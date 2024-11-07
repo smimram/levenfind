@@ -12,7 +12,6 @@
  (synopsis "Find similar files")
  (description "Find pairs of similar files according to Levenshtein distance.")
  (depends
-   ocaml (>= 5.0)
-   domainslib
+   (ocaml (>= 5.0))
  )
 )

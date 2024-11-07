@@ -127,12 +127,17 @@ let () =
     | Error e -> warning "%s\n%!" e
 
   in
-  let open Domainslib in
   let t = Sys.time () in
-  let pool = Task.setup_pool ~num_domains () in
-  let check () =
-    Task.parallel_for pool ~start:0 ~finish:(Array.length files2 - 1) ~body:check
+  let task =
+    let i = Atomic.make 0 in
+    let l = Array.length files2 in
+      fun () ->
+        while Atomic.get i < l do
+          let i = Atomic.fetch_and_add i 1 in
+          if i < l then check i
+        done
   in
-  Task.run pool check;
+  let domains = List.init num_domains (fun _ -> Domain.spawn task) in
+  List.iter Domain.join domains;
   print_newline ();
   Printf.printf "Compared %d files in %.02f seconds.\n%!" (List.length files) (Sys.time () -. t)
