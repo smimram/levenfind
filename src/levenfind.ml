@@ -134,7 +134,8 @@ let () =
       fun () ->
         while Atomic.get i < l do
           let i = Atomic.fetch_and_add i 1 in
-          if i < l then check i
+          if i < l then check i;
+          Domain.cpu_relax ()
         done
   in
   let domains = List.init num_domains (fun _ -> Domain.spawn task) in
