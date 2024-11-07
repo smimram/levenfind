@@ -8,6 +8,10 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+    - name: Switch to oracular
+      run: |
+        sed 's/jammy/oracular/' /etc/apt/sources.list
+        apt update
     - name: Install packages
       run: sudo apt-get -y install ocaml ocaml-dune
     - name: Build
