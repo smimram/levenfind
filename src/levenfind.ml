@@ -73,7 +73,7 @@ let domains = ref (max 1 (Domain.recommended_domain_count () - 1))
 let lines = ref false
 let verbose = ref true
 let threshold = ref 0.6
-let extension = ref ""
+let extensions = ref []
 let directories = ref []
 let recursive = ref true
 let max_file_size = ref 10000
@@ -83,14 +83,14 @@ let warning f = Printf.ksprintf (fun s -> if !verbose then (print_string s; flus
 let rec find_files ?(recursive=false) dir =
   (* Printf.printf "find in %s\n%!" dir; *)
   let d, f = Array.to_list (Sys.readdir dir) |> List.map (fun d -> dir ^ "/" ^ d) |> List.partition Sys.is_directory in
-  let f = List.filter (fun f -> Filename.check_suffix f !extension) f in
+  let f = List.filter (fun f -> !extensions = [] || List.exists (Filename.check_suffix f) !extensions) f in
   if recursive then f@(List.flatten (List.map (find_files ~recursive) d))
   else f
 
 let () =
   Arg.parse
     (Arg.align [
-        "--extension", Arg.Set_string extension, " Consider only files with given extension.";
+        "--extension", Arg.String (fun ext -> extensions := ext :: !extensions), " Consider only files with given extension.";
         "--lines", Arg.Set lines, " Compare lines instead of characters (faster but less precise).";
         "--non-recursive", Arg.Unit (fun () -> recursive := false), " Do not recurse into folders.";
         "--parallelism", Arg.Set_int domains, " Number of threads to be run concurrently.";
