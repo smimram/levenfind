@@ -70,7 +70,7 @@ let read_all fname =
 
 let () = assert (String.levenstein "kitten" "sitting" = 3)
 
-let domains = ref (Domain.recommended_domain_count ())
+let domains = ref (max 1 (Domain.recommended_domain_count () - 1))
 let lines = ref false
 let verbose = ref true
 let threshold = ref 0.6
@@ -96,7 +96,7 @@ let () =
         "--parallelism", Arg.Set_int domains, " Number of threads to be run concurrently.";
         "--quiet", Arg.Unit (fun () -> verbose := false), " Do not display warnings.";
         "--threshold", Arg.Float (fun x -> threshold := x /. 100.), (Printf.sprintf " Threshold above which matching files are displayed (between 0 and 100%%, default is %.00f%%)." (!threshold *. 100.))
-      ]) (fun s -> directories := s :: !directories) "levenfindfind [options] [directory]";
+      ]) (fun s -> directories := s :: !directories) "levenfind [options] [directory]";
   let directories = if !directories = [] then ["."] else !directories in
   let files = List.map (find_files ~recursive:!recursive) directories |> List.flatten in
   let num_domains = !domains in
