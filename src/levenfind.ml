@@ -63,7 +63,6 @@ exception Error of string
 let read_all fname =
   let ic = open_in fname in
   let len = in_channel_length ic in
-  if len > 100000 then (close_in ic; raise (Error ("File too big: "^fname)));
   let ans = really_input_string ic len in
   close_in ic;
   ans
@@ -77,6 +76,7 @@ let threshold = ref 0.6
 let extension = ref ""
 let directories = ref []
 let recursive = ref true
+let max_file_size = ref 10000
 
 let warning f = Printf.ksprintf (fun s -> if !verbose then (print_string s; flush stdout)) f
 
@@ -95,10 +95,24 @@ let () =
         "--non-recursive", Arg.Unit (fun () -> recursive := false), " Do not recurse into folders.";
         "--parallelism", Arg.Set_int domains, " Number of threads to be run concurrently.";
         "--quiet", Arg.Unit (fun () -> verbose := false), " Do not display warnings.";
+        "--size", Arg.Set_int max_file_size, Printf.sprintf " Maximum file size in octets (default: %d)." !max_file_size;
         "--threshold", Arg.Float (fun x -> threshold := x /. 100.), (Printf.sprintf " Threshold above which matching files are displayed (between 0 and 100%%, default is %.00f%%)." (!threshold *. 100.))
       ]) (fun s -> directories := s :: !directories) "levenfind [options] [directory]";
   let directories = if !directories = [] then ["."] else !directories in
   let files = List.map (find_files ~recursive:!recursive) directories |> List.flatten in
+  let files =
+    let p fname =
+      try
+        if (Unix.stat fname).Unix.st_size > !max_file_size then
+          (
+            Printf.printf "Too big: %s\n" fname;
+            false
+          )
+        else true
+      with _ -> false
+    in
+    List.filter p files
+  in
   let num_domains = !domains in
   if !verbose then
     (
@@ -112,7 +126,7 @@ let () =
     let fs,ft = files2.(i) in
     try
       let k = Atomic.fetch_and_add k 1 in
-      Printf.printf "\r%.02f%%%!" (float (k * 100) /. float kmax);
+      Printf.printf "\r%.02f%% (%d / %d)%!" (float (k * 100) /. float kmax) k kmax;
       let s = read_all fs in
       let t = read_all ft in
       let d =
@@ -131,6 +145,7 @@ let () =
         while Atomic.get i < l do
           let i = Atomic.fetch_and_add i 1 in
           if i < l then check i;
+          if i mod 10 = 0 then Gc.full_major ();
           Domain.cpu_relax ()
         done
   in
