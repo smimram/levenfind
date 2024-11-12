@@ -1,7 +1,7 @@
 all: build
 
 build:
-	dune build
+	@dune build
 
 test:
 	$(MAKE) -C test test
