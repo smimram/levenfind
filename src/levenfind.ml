@@ -83,7 +83,9 @@ let warning f = Printf.ksprintf (fun s -> if !verbose then (print_string s; flus
 
 let rec find_files ?(recursive=false) dir =
   (* Printf.printf "find in %s\n%!" dir; *)
-  let d, f = Array.to_list (Sys.readdir dir) |> List.map (fun d -> dir ^ "/" ^ d) |> List.partition Sys.is_directory in
+  let f = Sys.readdir dir |> Array.to_list |> List.map (fun d -> dir ^ "/" ^ d) in
+  let f = List.filter (fun f -> not (List.exists (fun re -> Str.string_match re (Filename.basename f) 0) !exclude)) f in
+  let d, f = f |> List.partition Sys.is_directory in
   let f = List.filter (fun f -> !extensions = [] || List.exists (Filename.check_suffix f) !extensions) f in
   if recursive then f@(List.flatten (List.map (find_files ~recursive) d))
   else f
@@ -110,7 +112,7 @@ let () =
             Printf.printf "Too big: %s\n" fname;
             false
           )
-        else not (List.exists (fun re -> Str.string_match re (Filename.basename fname) 0) !exclude)
+        else true
       with _ -> false
     in
     List.filter p files
