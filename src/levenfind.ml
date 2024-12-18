@@ -77,6 +77,7 @@ let extensions = ref []
 let directories = ref []
 let recursive = ref true
 let max_file_size = ref 10000
+let exclude = ref [] (** regexp for filenames to exclude *)
 
 let warning f = Printf.ksprintf (fun s -> if !verbose then (print_string s; flush stdout)) f
 
@@ -91,6 +92,7 @@ let () =
   Arg.parse
     (Arg.align [
         "--extension", Arg.String (fun ext -> extensions := ext :: !extensions), " Consider only files with given extension.";
+        "--exclude", Arg.String (fun e -> exclude := Str.regexp (e^"$") :: !exclude), " Exclude files whose name match the given regular expression.";
         "--lines", Arg.Set lines, " Compare lines instead of characters (faster but less precise).";
         "--non-recursive", Arg.Unit (fun () -> recursive := false), " Do not recurse into folders.";
         "--parallelism", Arg.Set_int domains, " Number of threads to be run concurrently.";
@@ -108,7 +110,7 @@ let () =
             Printf.printf "Too big: %s\n" fname;
             false
           )
-        else true
+        else not (List.exists (fun re -> Str.string_match re (Filename.basename fname) 0) !exclude)
       with _ -> false
     in
     List.filter p files

@@ -1,4 +1,4 @@
 (executable
  (public_name levenfind)
- (libraries unix)
+ (libraries str unix)
 )

@@ -2,6 +2,7 @@
 =====
 
 - Add `--parallelism` option.
+- Add `--exclude` option.
 
 0.2.0 (2022-12-22)
 =====
