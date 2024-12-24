@@ -76,7 +76,7 @@ let threshold = ref 0.6
 let extensions = ref []
 let directories = ref []
 let recursive = ref true
-let max_file_size = ref 10000
+let max_file_size = ref (16 * 1024)
 let exclude = ref [] (** regexp for filenames to exclude *)
 
 let warning f = Printf.ksprintf (fun s -> if !verbose then (print_string s; flush stdout)) f
