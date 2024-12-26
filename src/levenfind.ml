@@ -136,7 +136,7 @@ let () =
         (fun s ->
            Mutex.lock m;
            print_string s;
-           Option.iter (fun oc -> output_string oc s) oc;
+           Option.iter (fun oc -> output_string oc s; flush oc) oc;
            Mutex.unlock m
         ) fmt
   in
