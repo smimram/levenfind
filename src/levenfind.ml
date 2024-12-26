@@ -144,7 +144,8 @@ let () =
     let fs,ft = files2.(i) in
     try
       let k = Atomic.fetch_and_add k 1 in
-      Printf.printf "\r%.02f%% (%d / %d): %s / %s%!" (float (k * 100) /. float kmax) k kmax fs ft;
+      (* Printf.printf "\r%.02f%% (%d / %d): %s vs %s%!" (float (k * 100) /. float kmax) k kmax fs ft; *)
+      Printf.printf "\r%.02f%% (%d / %d)%!" (float (k * 100) /. float kmax) k kmax;
       let s = read_all fs in
       let t = read_all ft in
       let d =
