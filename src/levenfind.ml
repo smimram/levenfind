@@ -142,6 +142,7 @@ let () =
         ) fmt
   in
   let t0 = Unix.time () in
+  let eta = ref 0 in
   let check i =
     let fs,ft = files2.(i) in
     try
@@ -150,6 +151,8 @@ let () =
         if k = 0 then "???" else
           let t = int_of_float (Unix.time () -. t0) in
           let t = t * (kmax - k) / k in
+          let t = (3 * !eta + t) / 4 in
+          eta := t;
           if t >= 3600 then
             let t = t / 60 in
             Printf.sprintf "%dh%d" (t / 60) (t mod 60)
