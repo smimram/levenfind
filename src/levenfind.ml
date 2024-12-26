@@ -77,7 +77,8 @@ let extensions = ref []
 let directories = ref []
 let recursive = ref true
 let max_file_size = ref (32 * 1024)
-let exclude = ref [] (** regexp for filenames to exclude *)
+let exclude = ref [] (* regexp for filenames to exclude *)
+let log_file = ref ""
 
 let warning f = Printf.ksprintf (fun s -> if !verbose then (print_string s; flush stdout)) f
 
@@ -96,6 +97,7 @@ let () =
         "--extension", Arg.String (fun ext -> extensions := ext :: !extensions), " Consider only files with given extension.";
         "--exclude", Arg.String (fun e -> exclude := Str.regexp (e^"$") :: !exclude), " Exclude files whose name match the given regular expression.";
         "--lines", Arg.Set lines, " Compare lines instead of characters (faster but less precise).";
+        "--log", Arg.Set_string log_file, " Save output in given log file.";
         "--non-recursive", Arg.Unit (fun () -> recursive := false), " Do not recurse into folders.";
         "--parallelism", Arg.Set_int domains, " Number of threads to be run concurrently.";
         "--quiet", Arg.Unit (fun () -> verbose := false), " Do not display warnings.";
@@ -126,6 +128,18 @@ let () =
   let files2 = List.pairs files |> Array.of_list in
   let k = Atomic.make 0 in
   let kmax = Array.length files2 in
+  let log =
+    let m = Mutex.create () in
+    let oc = if !log_file = "" then None else Some (open_out !log_file) in
+    fun fmt ->
+      Printf.ksprintf
+        (fun s ->
+           Mutex.lock m;
+           print_string s;
+           Option.iter (fun oc -> output_string oc s) oc;
+           Mutex.unlock m
+        ) fmt
+  in
   let check i =
     let fs,ft = files2.(i) in
     try
@@ -137,7 +151,8 @@ let () =
         if !lines then List.similarity (String.split_on_char '\n' s) (String.split_on_char '\n' t)
         else String.similarity s t
       in
-      if d >= !threshold then Printf.printf "\n%s / %s: %.02f%%\n%!" fs ft (100. *. d)
+      if d >= !threshold then log "\n%s / %s: %.02f%%\n" fs ft (100. *. d)
+        (* log "\n%.02f%% similarity:\n- %s\n- %s\n" (100. *. d) fs ft *)
     with
     | Error e -> warning "%s\n%!" e
 
