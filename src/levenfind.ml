@@ -141,11 +141,24 @@ let () =
            Mutex.unlock m
         ) fmt
   in
+  let t0 = Unix.time () in
   let check i =
     let fs,ft = files2.(i) in
     try
       let k = Atomic.fetch_and_add k 1 in
-      Printf.printf "\r%.02f%% (%d / %d)%!" (float (k * 100) /. float kmax) k kmax;
+      let t =
+        if k = 0 then "???" else
+          let t = int_of_float (Unix.time () -. t0) in
+          let t = t * (kmax - k) / k in
+          if t >= 3600 then
+            let t = t / 60 in
+            Printf.sprintf "%dh%d" (t / 60) (t mod 60)
+          else if t >= 60 then
+            Printf.sprintf "%dm%d" (t / 60) (t mod 60)
+          else
+            Printf.sprintf "%ds" t
+      in
+      if !verbosity >= Normal then Printf.printf "\r%.02f%% (%d / %d, ETA: %s)%!" (float (k * 100) /. float kmax) k kmax t;
       if !verbosity >= Verbose then Printf.printf ": %s vs %s%!" fs ft;
       let s = read_all fs in
       let t = read_all ft in
@@ -154,7 +167,7 @@ let () =
         else String.similarity s t
       in
       if d >= !threshold then log "\nFound %s / %s: %.02f%%\n" fs ft (100. *. d)
-        (* log "\n%.02f%% similarity:\n- %s\n- %s\n" (100. *. d) fs ft *)
+    (* log "\n%.02f%% similarity:\n- %s\n- %s\n" (100. *. d) fs ft *)
     with
     | Error e -> if !verbosity >= Normal then print_endline e
 
@@ -162,13 +175,13 @@ let () =
   let task =
     let i = Atomic.make 0 in
     let l = Array.length files2 in
-      fun () ->
-        while Atomic.get i < l do
-          let i = Atomic.fetch_and_add i 1 in
-          if i < l then check i;
-          if i mod 10 = 0 then Gc.full_major ();
-          Domain.cpu_relax ()
-        done
+    fun () ->
+      while Atomic.get i < l do
+        let i = Atomic.fetch_and_add i 1 in
+        if i < l then check i;
+        if i mod 10 = 0 then Gc.full_major ();
+        Domain.cpu_relax ()
+      done
   in
   let t = Sys.time () in
   let domains = List.init num_domains (fun _ -> Domain.spawn task) in
