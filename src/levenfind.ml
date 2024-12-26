@@ -151,13 +151,13 @@ let () =
         if k = 0 then "???" else
           let t = int_of_float (Unix.time () -. t0) in
           let t = t * (kmax - k) / k in
-          let t = (3 * !eta + t) / 4 in
+          let t = (9 * !eta + t) / 10 in
           eta := t;
           if t >= 3600 then
             let t = t / 60 in
-            Printf.sprintf "%dh%d" (t / 60) (t mod 60)
+            Printf.sprintf "%dh%02d" (t / 60) (t mod 60)
           else if t >= 60 then
-            Printf.sprintf "%dm%d" (t / 60) (t mod 60)
+            Printf.sprintf "%dm%02d" (t / 60) (t mod 60)
           else
             Printf.sprintf "%ds" t
       in
