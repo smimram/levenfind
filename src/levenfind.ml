@@ -144,14 +144,14 @@ let () =
     let fs,ft = files2.(i) in
     try
       let k = Atomic.fetch_and_add k 1 in
-      Printf.printf "\r%.02f%% (%d / %d)%!" (float (k * 100) /. float kmax) k kmax;
+      Printf.printf "\r%.02f%% (%d / %d): %s / %s%!" (float (k * 100) /. float kmax) k kmax fs ft;
       let s = read_all fs in
       let t = read_all ft in
       let d =
         if !lines then List.similarity (String.split_on_char '\n' s) (String.split_on_char '\n' t)
         else String.similarity s t
       in
-      if d >= !threshold then log "\n%s / %s: %.02f%%\n" fs ft (100. *. d)
+      if d >= !threshold then log "\nFound %s / %s: %.02f%%\n" fs ft (100. *. d)
         (* log "\n%.02f%% similarity:\n- %s\n- %s\n" (100. *. d) fs ft *)
     with
     | Error e -> warning "%s\n%!" e
