@@ -81,6 +81,7 @@ let recursive = ref true
 let max_file_size = ref (32 * 1024)
 let exclude = ref [] (* regexp for filenames to exclude *)
 let log_file = ref ""
+let filename = ref false
 
 let rec find_files ?(recursive=false) dir =
   (* Printf.printf "find in %s\n%!" dir; *)
@@ -96,6 +97,7 @@ let () =
     (Arg.align [
         "--extension", Arg.String (fun ext -> extensions := ext :: !extensions), " Consider only files with given extension.";
         "--exclude", Arg.String (fun e -> exclude := Str.regexp (e^"$") :: !exclude), " Exclude files whose name match the given regular expression.";
+        "--filename", Arg.Set filename, " Only compare file with the same name.";
         "--lines", Arg.Set lines, " Compare lines instead of characters (faster but less precise).";
         "--log", Arg.Set_string log_file, " Save output in given log file.";
         "--non-recursive", Arg.Unit (fun () -> recursive := false), " Do not recurse into folders.";
@@ -147,30 +149,31 @@ let () =
     let fs,ft = files2.(i) in
     try
       let k = Atomic.fetch_and_add k 1 in
-      let t =
-        if k = 0 then "???" else
-          let t = int_of_float (Unix.time () -. t0) in
-          let t = t * (kmax - k) / k in
-          let t = (9 * !eta + t) / 10 in
-          eta := t;
-          if t >= 3600 then
-            let t = t / 60 in
-            Printf.sprintf "%dh%02d" (t / 60) (t mod 60)
-          else if t >= 60 then
-            Printf.sprintf "%dm%02d" (t / 60) (t mod 60)
-          else
-            Printf.sprintf "%ds" t
-      in
-      if !verbosity >= Normal then Printf.printf "\r%.02f%% (%d / %d, ETA: %s)%!" (float (k * 100) /. float kmax) k kmax t;
-      if !verbosity >= Verbose then Printf.printf ": %s vs %s%!" fs ft;
-      let s = read_all fs in
-      let t = read_all ft in
-      let d =
-        if !lines then List.similarity (String.split_on_char '\n' s) (String.split_on_char '\n' t)
-        else String.similarity s t
-      in
-      if d >= !threshold then log "\nFound %s / %s: %.02f%%\n" fs ft (100. *. d)
-    (* log "\n%.02f%% similarity:\n- %s\n- %s\n" (100. *. d) fs ft *)
+      if (not !filename) || (Filename.basename fs = Filename.basename ft) then
+        let t =
+          if k = 0 then "???" else
+            let t = int_of_float (Unix.time () -. t0) in
+            let t = t * (kmax - k) / k in
+            let t = (9 * !eta + t) / 10 in
+            eta := t;
+            if t >= 3600 then
+              let t = t / 60 in
+              Printf.sprintf "%dh%02d" (t / 60) (t mod 60)
+            else if t >= 60 then
+              Printf.sprintf "%dm%02d" (t / 60) (t mod 60)
+            else
+              Printf.sprintf "%ds" t
+        in
+        if !verbosity >= Normal then Printf.printf "\r%.02f%% (%d / %d, ETA: %s)%!" (float (k * 100) /. float kmax) k kmax t;
+        if !verbosity >= Verbose then Printf.printf ": %s vs %s%!" fs ft;
+        let s = read_all fs in
+        let t = read_all ft in
+        let d =
+          if !lines then List.similarity (String.split_on_char '\n' s) (String.split_on_char '\n' t)
+          else String.similarity s t
+        in
+        if d >= !threshold then log "\nFound %s / %s: %.02f%%\n" fs ft (100. *. d)
+        (* log "\n%.02f%% similarity:\n- %s\n- %s\n" (100. *. d) fs ft *)
     with
     | Error e -> if !verbosity >= Normal then print_endline e
 
