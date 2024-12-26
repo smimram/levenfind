@@ -145,10 +145,8 @@ let () =
     let fs,ft = files2.(i) in
     try
       let k = Atomic.fetch_and_add k 1 in
-      if !verbosity >= Verbose then
-        Printf.printf "\r%.02f%% (%d / %d): %s vs %s%!" (float (k * 100) /. float kmax) k kmax fs ft
-      else
-        Printf.printf "\r%.02f%% (%d / %d)%!" (float (k * 100) /. float kmax) k kmax;
+      Printf.printf "\r%.02f%% (%d / %d)%!" (float (k * 100) /. float kmax) k kmax;
+      if !verbosity >= Verbose then Printf.printf ": %s vs %s%!" fs ft;
       let s = read_all fs in
       let t = read_all ft in
       let d =
