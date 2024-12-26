@@ -169,7 +169,8 @@ let () =
         let s = read_all fs in
         let t = read_all ft in
         let d =
-          if !lines then List.similarity (String.split_on_char '\n' s) (String.split_on_char '\n' t)
+          if !threshold >= 1. then (if s = t then 1. else 0.)
+          else if !lines then List.similarity (String.split_on_char '\n' s) (String.split_on_char '\n' t)
           else String.similarity s t
         in
         if d >= !threshold then log "\nFound %s / %s: %.02f%%\n" fs ft (100. *. d)
