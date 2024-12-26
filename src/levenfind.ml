@@ -69,9 +69,11 @@ let read_all fname =
 
 let () = assert (String.levenstein "kitten" "sitting" = 3)
 
+type verbosity = Quiet | Normal | Verbose
+
 let domains = ref (max 1 (Domain.recommended_domain_count () - 1))
 let lines = ref false
-let verbose = ref true
+let verbosity = ref Normal
 let threshold = ref 0.6
 let extensions = ref []
 let directories = ref []
@@ -79,8 +81,6 @@ let recursive = ref true
 let max_file_size = ref (32 * 1024)
 let exclude = ref [] (* regexp for filenames to exclude *)
 let log_file = ref ""
-
-let warning f = Printf.ksprintf (fun s -> if !verbose then (print_string s; flush stdout)) f
 
 let rec find_files ?(recursive=false) dir =
   (* Printf.printf "find in %s\n%!" dir; *)
@@ -100,9 +100,10 @@ let () =
         "--log", Arg.Set_string log_file, " Save output in given log file.";
         "--non-recursive", Arg.Unit (fun () -> recursive := false), " Do not recurse into folders.";
         "--parallelism", Arg.Set_int domains, " Number of threads to be run concurrently.";
-        "--quiet", Arg.Unit (fun () -> verbose := false), " Do not display warnings.";
+        "--quiet", Arg.Unit (fun () -> verbosity := Quiet), " Do not display warnings.";
         "--size", Arg.Set_int max_file_size, Printf.sprintf " Maximum file size in octets (default: %d)." !max_file_size;
-        "--threshold", Arg.Float (fun x -> threshold := x /. 100.), (Printf.sprintf " Threshold above which matching files are displayed (between 0 and 100%%, default is %.00f%%)." (!threshold *. 100.))
+        "--threshold", Arg.Float (fun x -> threshold := x /. 100.), (Printf.sprintf " Threshold above which matching files are displayed (between 0 and 100%%, default is %.00f%%)." (!threshold *. 100.));
+        "--verbose", Arg.Unit (fun () -> verbosity := Verbose), " Display more messages";
       ]) (fun s -> directories := s :: !directories) "levenfind [options] [directory]";
   let directories = if !directories = [] then ["."] else !directories in
   let files = List.map (find_files ~recursive:!recursive) directories |> List.flatten in
@@ -120,7 +121,7 @@ let () =
     List.filter p files
   in
   let num_domains = !domains in
-  if !verbose then
+  if !verbosity >= Normal then
     (
       Printf.printf "Using %d domains\n%!" num_domains;
       List.iter (Printf.printf "Considering %s\n%!") files
@@ -144,7 +145,7 @@ let () =
     let fs,ft = files2.(i) in
     try
       let k = Atomic.fetch_and_add k 1 in
-      if !verbose then
+      if !verbosity >= Verbose then
         Printf.printf "\r%.02f%% (%d / %d): %s vs %s%!" (float (k * 100) /. float kmax) k kmax fs ft
       else
         Printf.printf "\r%.02f%% (%d / %d)%!" (float (k * 100) /. float kmax) k kmax;
@@ -157,7 +158,7 @@ let () =
       if d >= !threshold then log "\nFound %s / %s: %.02f%%\n" fs ft (100. *. d)
         (* log "\n%.02f%% similarity:\n- %s\n- %s\n" (100. *. d) fs ft *)
     with
-    | Error e -> warning "%s\n%!" e
+    | Error e -> if !verbosity >= Normal then print_endline e
 
   in
   let task =
