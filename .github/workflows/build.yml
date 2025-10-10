@@ -8,9 +8,9 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-    - name: Switch to oracular
+    - name: Switch to latest Ubuntu
       run: |
-        sudo sed -i 's/jammy/oracular/' /etc/apt/sources.list
+        sudo sed -i 's/noble/questing/' /etc/apt/sources.list
         sudo apt-get -y update
     - name: Install packages
       run: sudo apt-get -y install ocaml ocaml-dune
