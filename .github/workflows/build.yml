@@ -8,13 +8,13 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-    - name: Switch to latest Ubuntu
-      run: |
-        sudo sed -i 's/noble/questing/' /etc/apt/sources.list
-        sudo apt-get -y update
+    - name: Set-up OCaml
+      uses: ocaml/setup-ocaml@v3
+      with:
+        ocaml-compiler: 5
     - name: Install packages
-      run: sudo apt-get -y install ocaml ocaml-dune
+      run: opam install . --deps-only --with-test
     - name: Build
-      run: dune build
+      run: opam exec -- dune build
     - name: Test
-      run: dune test
+      run: opam exec -- dune runtest
