@@ -1,3 +1,8 @@
+0.3.0 (unreleased)
+=====
+
+- Switch to builtin implementation of edit distance (requires OCaml >= 5.4).
+
 0.2.1 (2025-10-10)
 =====
 

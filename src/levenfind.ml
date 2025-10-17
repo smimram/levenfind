@@ -2,7 +2,7 @@ let min3 (x:int) (y:int) (z:int) = min (min x y) z
 
 module List = struct
   include List
-
+  
   (** Compute the Levenstein distance of two lists. *)
   let levenstein s t =
     let m = List.length s in
@@ -21,7 +21,7 @@ module List = struct
   let similarity s t =
     let n = max (List.length s) (List.length t) in
     float (n - levenstein s t) /. float n
-  
+
   (** Iterate a function on ordered pairs. *)
   let rec iter_pairs f = function
     | x::l -> List.iter (f x) l; iter_pairs f l
@@ -36,25 +36,11 @@ end
 module String = struct
   include String
 
-  (** Compute the Levenstein distance of two strings. *)
-  let levenstein s t =
-    let m = String.length s in
-    let n = String.length t in
-    let d = Array.make_matrix (m+1) (n+1) 0 in
-    for i = 1 to m do d.(i).(0) <- i done;
-    for j = 1 to n do d.(0).(j) <- j done;
-    for j = 1 to n do
-      for i = 1 to m do
-        let c = if s.[i-1] = t.[j-1] then 0 else 1 in
-        d.(i).(j) <- min3 (d.(i-1).(j)+1) (d.(i).(j-1)+1) (d.(i-1).(j-1)+c)
-      done
-    done;
-    d.(m).(n)
-
   (** Similarity ratio of two strings. *)
   let similarity s t =
+    let k = edit_distance ~limit:((String.length s + String.length t) / 2) s t in
     let n = max (String.length s) (String.length t) in
-    float (n - levenstein s t) /. float n
+    float (n - k) /. float n
 end
 
 exception Error of string
@@ -67,7 +53,8 @@ let read_all fname =
   close_in ic;
   ans
 
-let () = assert (String.levenstein "kitten" "sitting" = 3)
+let () = assert (String.edit_distance "kitten" "sitting" = 3)
+let () = assert (String.edit_distance "ca" "abc" = 3)
 
 type verbosity = Quiet | Normal | Verbose
 
