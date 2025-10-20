@@ -64,9 +64,14 @@ module String = struct
     aux d' d 1
 
   (** Similarity ratio of two strings. *)
-  let similarity s t =
+  let similarity ?(kind=`Levenstein) s t =
+    let f =
+      match kind with
+      | `Levenstein -> levenstein
+      | `OSA -> edit_distance
+    in
     let n = max (String.length s) (String.length t) in
-    let k = levenstein ~limit:(n / 2) s t in
+    let k = f ~limit:(n / 2) s t in
     float (n - k) /. float n
 end
 
@@ -94,6 +99,7 @@ let max_file_size = ref (32 * 1024)
 let exclude = ref [] (* regexp for filenames to exclude *)
 let log_file = ref ""
 let filename = ref false
+let transpositions = ref false
 
 let rec find_files ?(recursive=false) dir =
   (* Printf.printf "find in %s\n%!" dir; *)
@@ -106,7 +112,8 @@ let rec find_files ?(recursive=false) dir =
 
 let () =
   Arg.parse
-    (Arg.align [
+    (Arg.align
+       [
          "--extension", Arg.String (fun ext -> extensions := ext :: !extensions), " Consider only files with given extension.";
          "--exclude", Arg.String (fun e -> exclude := Str.regexp (e^"$") :: !exclude), " Exclude files whose name match the given regular expression.";
          "--filename", Arg.Set filename, " Only compare file with the same name.";
@@ -116,6 +123,7 @@ let () =
          "--parallelism", Arg.Set_int domains, " Number of threads to be run concurrently.";
          "--quiet", Arg.Unit (fun () -> verbosity := Quiet), " Do not display warnings.";
          "--size", Arg.Set_int max_file_size, Printf.sprintf " Maximum file size in octets (default: %d)." !max_file_size;
+         "--transpositions", Arg.Set transpositions, Printf.sprintf " Also take transpositions in account in the distance.";
          "--threshold", Arg.Float (fun x -> threshold := x /. 100.), (Printf.sprintf " Threshold above which matching files are displayed (between 0 and 100%%, default is %.00f%%)." (!threshold *. 100.));
          "--verbose", Arg.Unit (fun () -> verbosity := Verbose), " Display more messages";
     ]) (fun s -> directories := s :: !directories) "levenfind [options] [directory]";
@@ -184,7 +192,7 @@ let () =
       let d =
         if !threshold >= 1. then (if s = t then 1. else 0.)
         else if !lines then List.similarity (String.split_on_char '\n' s) (String.split_on_char '\n' t)
-        else String.similarity s t
+        else String.similarity ~kind:(if !transpositions then `OSA else `Levenstein) s t
       in
       if d >= !threshold then log "\nFound %s / %s: %.02f%%\n" fs ft (100. *. d)
                                   (* log "\n%.02f%% similarity:\n- %s\n- %s\n" (100. *. d) fs ft *)
