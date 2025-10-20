@@ -66,7 +66,7 @@ module String = struct
   (** Similarity ratio of two strings. *)
   let similarity s t =
     let n = max (String.length s) (String.length t) in
-    let k = edit_distance ~limit:(n / 2) s t in
+    let k = levenstein ~limit:(n / 2) s t in
     float (n - k) /. float n
 end
 
