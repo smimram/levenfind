@@ -41,11 +41,12 @@ module String = struct
     for i = 1 to m do d.(i).(0) <- i done;
     for j = 1 to n do d.(0).(j) <- j done;
     let rec aux d' d i =
-      if i > m then d.(n) else
+      if i > m then d'.(n) else
         (
           d.(0) <- i;
           (* minimum over the row *)
           let dmin = ref i in
+          ignore (s.[i-1]);
           for j = 1 to n do
             let c = if s.[i-1] = t.[j-1] then 0 else 1 in
             d.(j) <- min3
@@ -59,7 +60,7 @@ module String = struct
     in
     let d' = Array.init (n+1) (fun j -> j) in
     let d = Array.make (n+1) 0 in
-    aux d' d 0
+    aux d' d 1
 
   (** Similarity ratio of two strings. *)
   let similarity s t =
@@ -76,8 +77,8 @@ let read_all fname =
   close_in ic;
   ans
 
-let () = assert (String.edit_distance "kitten" "sitting" = 3)
-let () = assert (String.edit_distance "ca" "abc" = 3)
+let () = assert (String.levenstein "kitten" "sitting" = 3)
+let () = assert (String.levenstein "ca" "abc" = 3)
 
 type verbosity = Quiet | Normal | Verbose
 
