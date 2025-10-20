@@ -138,9 +138,11 @@ let () =
   if !verbosity >= Normal then
     (
       Printf.printf "Using %d domains\n%!" num_domains;
+      Printf.printf "Considering %d files\n%!" (List.length files);
       List.iter (Printf.printf "Considering %s\n%!") files
     );
   let files2 = List.pairs files |> Array.of_list in
+  Printf.printf "Considering %d pairs of files\n%!" (Array.length files2);
   let k = Atomic.make 0 in
   let kmax = Array.length files2 in
   let log =
