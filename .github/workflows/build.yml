@@ -9,12 +9,8 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
     - name: Set-up OCaml
-      uses: ocaml/setup-ocaml@v3
-      with:
-        ocaml-compiler: 5
-    - name: Install packages
-      run: opam install . --deps-only --with-test
+      uses: sudy apt-get install -y ocaml ocaml-dune
     - name: Build
-      run: opam exec -- dune build
+      run: make
     - name: Test
-      run: opam exec -- dune runtest
+      run: make test
