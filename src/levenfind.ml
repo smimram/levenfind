@@ -7,18 +7,22 @@ module List = struct
   
   (** Compute the Levenstein distance of two lists. *)
   let levenstein s t =
-    let m = List.length s in
     let n = List.length t in
-    let d = Array.make_matrix (m+1) (n+1) 0 in
-    for i = 1 to m do d.(i).(0) <- i done;
-    for j = 1 to n do d.(0).(j) <- j done;
-    iteri (fun j y ->
-        iteri (fun i x ->
-            let c = if x = y then 0 else 1 in
-            d.(i+1).(j+1) <- min3 (d.(i).(j+1)+1) (d.(i+1).(j)+1) (d.(i).(j)+c)
-          ) s
-      ) t;
-    d.(m).(n)
+    let rec aux d' d s i =
+      match s with
+      | x::s ->
+         d.(0) <- i;
+         List.iteri
+           (fun j y ->
+             let c = if x = y then 0 else 1 in
+             d.(j+1) <- min3 (d'.(j+1)+1) (d.(j)+1) (d'.(j)+c)
+           ) s;
+         aux d d' s (i+1)
+      | [] -> d'.(n)
+    in
+    let d' = Array.init (n+1) (fun j -> j) in
+    let d = Array.make (n+1) 0 in
+    aux d' d s 1
 
   let similarity s t =
     let n = max (List.length s) (List.length t) in
@@ -37,9 +41,6 @@ module String = struct
   let levenstein ?(limit=max_int) s t =
     let m = String.length s in
     let n = String.length t in
-    let d = Array.make_matrix (m+1) (n+1) 0 in
-    for i = 1 to m do d.(i).(0) <- i done;
-    for j = 1 to n do d.(0).(j) <- j done;
     (* Compute next row d from previous row d'. *)
     let rec aux d' d i =
       if i > m then d'.(n) else
