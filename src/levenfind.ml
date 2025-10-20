@@ -40,13 +40,13 @@ module String = struct
     let d = Array.make_matrix (m+1) (n+1) 0 in
     for i = 1 to m do d.(i).(0) <- i done;
     for j = 1 to n do d.(0).(j) <- j done;
+    (* Compute next row d from previous row d'. *)
     let rec aux d' d i =
       if i > m then d'.(n) else
         (
           d.(0) <- i;
           (* minimum over the row *)
           let dmin = ref i in
-          ignore (s.[i-1]);
           for j = 1 to n do
             let c = if s.[i-1] = t.[j-1] then 0 else 1 in
             d.(j) <- min3
