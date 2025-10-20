@@ -16,7 +16,7 @@ module List = struct
            (fun j y ->
              let c = if x = y then 0 else 1 in
              d.(j+1) <- min3 (d'.(j+1)+1) (d.(j)+1) (d'.(j)+c)
-           ) s;
+           ) t;
          aux d d' s (i+1)
       | [] -> d'.(n)
     in
@@ -202,7 +202,10 @@ let () =
     done
   in
   let t = Sys.time () in
-  let domains = List.init num_domains (fun _ -> Domain.spawn task) in
-  List.iter Domain.join domains;
+  if !domains = 1 then task () else
+    (
+      let domains = List.init num_domains (fun _ -> Domain.spawn task) in
+      List.iter Domain.join domains;
+    );
   print_newline ();
   Printf.printf "Compared %d files in %.02f seconds.\n%!" (List.length files) (Sys.time () -. t)

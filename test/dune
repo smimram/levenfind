@@ -2,6 +2,9 @@
  (alias runtest)
  (deps a1 a2 x)
  (action
-  (run ../src/levenfind.exe)
+   (progn
+    (run ../src/levenfind.exe)
+    (run ../src/levenfind.exe --lines)
+   )
  )
 )
