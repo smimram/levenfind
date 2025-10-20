@@ -48,7 +48,11 @@ module String = struct
           d.(0) <- i;
           (* minimum over the row *)
           let dmin = ref i in
-          for j = 1 to n do
+          let jmax =
+            let jmax = min n (i + limit - 1) in
+            if jmax <0 then n else jmax
+          in
+          for j = 1 to jmax do
             let c = if s.[i-1] = t.[j-1] then 0 else 1 in
             d.(j) <- min3
                        (d'.(j)+1)    (* deletion *)
