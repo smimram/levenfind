@@ -9,7 +9,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
     - name: Set-up OCaml
-      run: sudy apt-get install -y ocaml ocaml-dune
+      run: sudo apt-get install -y ocaml ocaml-dune
     - name: Build
       run: make
     - name: Test
