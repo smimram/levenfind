@@ -1,6 +1,6 @@
 (lang dune 3.0)
 (name levenfind)
-(version 0.2.2)
+(version 0.3.0)
 (source (github smimram/levenfind))
 (license GPL-3.0)
 (authors "Samuel Mimram <smimram@gmail.com>")
@@ -12,6 +12,6 @@
  (synopsis "Find similar files")
  (description "Find pairs of similar files according to Levenshtein distance.")
  (depends
-   (ocaml (>= 4.0))
+   (ocaml (>= 5.4))
  )
 )

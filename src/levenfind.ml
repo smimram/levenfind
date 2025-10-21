@@ -99,7 +99,7 @@ let max_file_size = ref (32 * 1024)
 let exclude = ref [] (* regexp for filenames to exclude *)
 let log_file = ref ""
 let filename = ref false
-let transpositions = ref false
+let distance = ref `OSA
 
 let rec find_files ?(recursive=false) dir =
   (* Printf.printf "find in %s\n%!" dir; *)
@@ -111,6 +111,13 @@ let rec find_files ?(recursive=false) dir =
   else f
 
 let () =
+  let set_distance d =
+    distance :=
+      match d with
+      | "l" | "levenstein" -> `Levenstein
+      | "osa" | "dl" | "damerau-levenstein" -> `OSA
+      | d -> Printf.printf "Unknown distance: %s\n%!" d; exit 1
+  in
   Arg.parse
     (Arg.align
        [
@@ -123,7 +130,7 @@ let () =
          "--parallelism", Arg.Set_int domains, " Number of threads to be run concurrently.";
          "--quiet", Arg.Unit (fun () -> verbosity := Quiet), " Do not display warnings.";
          "--size", Arg.Set_int max_file_size, Printf.sprintf " Maximum file size in octets (default: %d)." !max_file_size;
-         "--transpositions", Arg.Set transpositions, Printf.sprintf " Also take transpositions in account in the distance.";
+         "--distance", Arg.String set_distance, Printf.sprintf " .";
          "--threshold", Arg.Float (fun x -> threshold := x /. 100.), (Printf.sprintf " Threshold above which matching files are displayed (between 0 and 100%%, default is %.00f%%)." (!threshold *. 100.));
          "--verbose", Arg.Unit (fun () -> verbosity := Verbose), " Display more messages";
     ]) (fun s -> directories := s :: !directories) "levenfind [options] [directory]";
@@ -192,7 +199,7 @@ let () =
       let d =
         if !threshold >= 1. then (if s = t then 1. else 0.)
         else if !lines then List.similarity (String.split_on_char '\n' s) (String.split_on_char '\n' t)
-        else String.similarity ~kind:(if !transpositions then `OSA else `Levenstein) s t
+        else String.similarity ~kind:!distance s t
       in
       if d >= !threshold then log "\nFound %s / %s: %.02f%%\n" fs ft (100. *. d)
                                   (* log "\n%.02f%% similarity:\n- %s\n- %s\n" (100. *. d) fs ft *)

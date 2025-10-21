@@ -1,7 +1,8 @@
-0.2.2 (unreleased)
+0.3.0 (unreleased)
 =====
 
 - Much more memory efficient implementation.
+- Use stdlib's implementation of OSA by default.
 
 0.2.1 (2025-10-10)
 =====
