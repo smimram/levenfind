@@ -1,5 +1,27 @@
 open Extlib
 
+module List = struct
+  include List
+
+  let distance s t =
+    levenstein s t
+end
+
+module String = struct
+  include String
+
+  (** Distance between two strings. *)
+  let distance ?(kind=`Levenstein) s t =
+    let f =
+      match kind with
+      | `Levenstein -> levenstein
+      | `OSA -> edit_distance
+    in
+    let n = max (String.length s) (String.length t) in
+    let k = f ~limit:(n / 2) s t in
+    k
+end
+
 type verbosity = Quiet | Normal | Verbose
 
 let domains = ref (max 1 (Domain.recommended_domain_count () - 1))
@@ -110,12 +132,26 @@ let () =
       if !verbosity >= Verbose then Printf.printf ": %s vs %s%!" fs ft;
       let s = File.read fs in
       let t = File.read ft in
-      let d =
-        if !threshold >= 1. then (if s = t then 1. else 0.)
-        else if !lines then List.similarity (String.split_on_char '\n' s) (String.split_on_char '\n' t)
-        else String.similarity ~kind:!distance s t
+      let k, n =
+        if !lines then
+          let s = String.split_on_char '\n' s in
+          let t = String.split_on_char '\n' t in
+          let n = max (List.length s) (List.length t) in
+          if !threshold >= 1. then
+            if s = t then n, n else 0, n
+          else
+            let k = List.distance s t in
+            k, n
+        else
+          let n = max (String.length s) (String.length t) in
+          if !threshold >= 1. then
+            if s = t then n, n else 0, n
+          else
+            let k = String.distance ~kind:!distance s t in
+            k, n
       in
-      if d >= !threshold then log "\nFound %s / %s: %.02f%%\n" fs ft (100. *. d)
+      let d = float (n - k) /. float n in
+      if d >= !threshold then log "\nFound %s / %s: %.02f%% (%d / %d)\n" fs ft (100. *. d) k n
                                   (* log "\n%.02f%% similarity:\n- %s\n- %s\n" (100. *. d) fs ft *)
 
   in

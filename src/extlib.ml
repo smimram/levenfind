@@ -22,10 +22,6 @@ module List = struct
     let d = Array.make (n+1) 0 in
     aux d' d s 1
 
-  let similarity s t =
-    let n = max (List.length s) (List.length t) in
-    float (n - levenstein s t) /. float n
-
   (** All ordered pairs. *)
   let rec pairs = function
     | x::l -> (List.map (fun y -> (x,y)) l)@(pairs l)
@@ -64,17 +60,6 @@ module String = struct
 
   let () = assert (levenstein "kitten" "sitting" = 3)
   let () = assert (levenstein "ca" "abc" = 3)
-
-  (** Similarity ratio of two strings. *)
-  let similarity ?(kind=`Levenstein) s t =
-    let f =
-      match kind with
-      | `Levenstein -> levenstein
-      | `OSA -> edit_distance
-    in
-    let n = max (String.length s) (String.length t) in
-    let k = f ~limit:(n / 2) s t in
-    float (n - k) /. float n
 end
 
 module File = struct
