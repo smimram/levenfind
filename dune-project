@@ -2,7 +2,7 @@
 (name levenfind)
 (version 0.3.0)
 (source (github smimram/levenfind))
-(license GPL-3.0)
+(license GPL-3.0-only)
 (authors "Samuel Mimram <smimram@gmail.com>")
 (maintainers "Samuel Mimram <smimram@gmail.com>")
 
