@@ -66,7 +66,7 @@ let () =
          "--parallelism", Arg.Set_int domains, " Number of threads to be run concurrently.";
          "--quiet", Arg.Unit (fun () -> verbosity := Quiet), " Do not display warnings.";
          "--size", Arg.Set_int max_file_size, Printf.sprintf " Maximum file size in octets (default: %d)." !max_file_size;
-         "--distance", Arg.String set_distance, Printf.sprintf " .";
+         "--distance", Arg.String set_distance, Printf.sprintf " Distance to use. Default is `OSA` which takes in account transpositions, `Levenstein` (without transpositions) is also available.";
          "--threshold", Arg.Float (fun x -> threshold := x /. 100.), (Printf.sprintf " Threshold above which matching files are displayed (between 0 and 100%%, default is %.00f%%)." (!threshold *. 100.));
          "--verbose", Arg.Unit (fun () -> verbosity := Verbose), " Display more messages";
     ]) (fun s -> directories := s :: !directories) "levenfind [options] [directory]";
