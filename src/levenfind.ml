@@ -49,7 +49,7 @@ let rec find_files ?(recursive=false) dir =
 let () =
   let set_distance d =
     distance :=
-      match d with
+      match String.lowercase_ascii d with
       | "l" | "levenstein" -> `Levenstein
       | "osa" | "dl" | "damerau-levenstein" -> `OSA
       | d -> Printf.printf "Unknown distance: %s\n%!" d; exit 1
