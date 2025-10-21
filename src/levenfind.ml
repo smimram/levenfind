@@ -75,13 +75,15 @@ module String = struct
     float (n - k) /. float n
 end
 
-(** Read a whole file. *)
-let read_all fname =
-  let ic = open_in fname in
-  let len = in_channel_length ic in
-  let ans = really_input_string ic len in
-  close_in ic;
-  ans
+module File = struct
+  (** Read a whole file. *)
+  let read fname =
+    let ic = open_in fname in
+    let len = in_channel_length ic in
+    let ans = really_input_string ic len in
+    close_in ic;
+    ans
+end
 
 let () = assert (String.levenstein "kitten" "sitting" = 3)
 let () = assert (String.levenstein "ca" "abc" = 3)
@@ -194,8 +196,8 @@ let () =
       in
       if !verbosity >= Normal then Printf.printf "\r%.02f%% (%d / %d, ETA: %s)%!" (float (k * 100) /. float kmax) k kmax t;
       if !verbosity >= Verbose then Printf.printf ": %s vs %s%!" fs ft;
-      let s = read_all fs in
-      let t = read_all ft in
+      let s = File.read fs in
+      let t = File.read ft in
       let d =
         if !threshold >= 1. then (if s = t then 1. else 0.)
         else if !lines then List.similarity (String.split_on_char '\n' s) (String.split_on_char '\n' t)
