@@ -151,8 +151,9 @@ let () =
             k, n
       in
       let d = float (n - k) /. float n in
-      if d >= !threshold then log "\nFound %s / %s: %.02f%% (%d / %d)\n" fs ft (100. *. d) k n
-                                  (* log "\n%.02f%% similarity:\n- %s\n- %s\n" (100. *. d) fs ft *)
+      if d >= !threshold then
+        (* log "\nFound %s / %s: %.02f%% (%d / %d)\n" fs ft (100. *. d) k n *)
+        log "\nFound %.02f%% similarity (distance: %d / length: %d):\n- %s\n- %s\n" (100. *. d) k n fs ft
 
   in
   let task =
