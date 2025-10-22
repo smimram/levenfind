@@ -1,4 +1,10 @@
+(library
+ (name extlib)
+ (modules extlib)
+)
+
 (executable
  (public_name levenfind)
- (libraries str unix)
+ (libraries extlib str unix)
+ (modules levenfind)
 )

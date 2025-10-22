@@ -1,10 +1,16 @@
+(executable
+ (name test)
+ (libraries extlib)
+)
+
 (rule
  (alias runtest)
  (deps a1 a2 x)
  (action
-   (progn
-    (run ../src/levenfind.exe)
-    (run ../src/levenfind.exe --lines)
-   )
+  (progn
+   (run ../src/levenfind.exe)
+   (run ../src/levenfind.exe --lines)
+   (run ./test.exe)
+  )
  )
 )

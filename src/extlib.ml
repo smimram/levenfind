@@ -57,9 +57,6 @@ module String = struct
     let d' = Array.init (n+1) (fun j -> j) in
     let d = Array.make (n+1) 0 in
     aux d' d 1
-
-  let () = assert (levenstein "kitten" "sitting" = 3)
-  let () = assert (levenstein "ca" "abc" = 3)
 end
 
 module File = struct
