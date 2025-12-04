@@ -35,6 +35,8 @@ let max_file_size = ref (32 * 1024)
 let exclude = ref [] (* regexp for filenames to exclude *)
 let log_file = ref ""
 let filename = ref false
+let summary = ref false
+let found = ref []
 let distance = ref `OSA
 
 let rec find_files ?(recursive=false) dir =
@@ -68,7 +70,8 @@ let () =
          "--size", Arg.Set_int max_file_size, Printf.sprintf " Maximum file size in octets (default: %d)." !max_file_size;
          "--distance", Arg.String set_distance, Printf.sprintf " Distance to use. Default is `OSA` which takes in account transpositions, `Levenstein` (without transpositions) is also available.";
          "--threshold", Arg.Float (fun x -> threshold := x /. 100.), (Printf.sprintf " Threshold above which matching files are displayed (between 0 and 100%%, default is %.00f%%)." (!threshold *. 100.));
-         "--verbose", Arg.Unit (fun () -> verbosity := Verbose), " Display more messages";
+         "--summary", Arg.Set summary, " Show summary in the end (sorted by distance).";
+         "--verbose", Arg.Unit (fun () -> verbosity := Verbose), " Display more messages.";
     ]) (fun s -> directories := s :: !directories) "levenfind [options] [directory]";
   let directories = if !directories = [] then ["."] else !directories in
   let files = List.map (find_files ~recursive:!recursive) directories |> List.flatten in
@@ -152,8 +155,11 @@ let () =
       in
       let d = float (n - k) /. float n in
       if d >= !threshold then
-        (* log "\nFound %s / %s: %.02f%% (%d / %d)\n" fs ft (100. *. d) k n *)
-        log "\nFound %.02f%% similarity (distance: %d / length: %d):\n- %s\n- %s\n" (100. *. d) k n fs ft
+        (
+          (* log "\nFound %s / %s: %.02f%% (%d / %d)\n" fs ft (100. *. d) k n *)
+          log "\nFound %.02f%% similarity (distance: %d / length: %d):\n- %s\n- %s\n" (100. *. d) k n fs ft;
+          if !summary then found := (d,fs,ft) :: !found
+        )
 
   in
   let task =
@@ -174,4 +180,10 @@ let () =
       List.iter Domain.join domains;
     );
   print_newline ();
-  Printf.printf "Compared %d files in %.02f seconds.\n%!" (List.length files) (Sys.time () -. t)
+  Printf.printf "Compared %d files in %.02f seconds.\n%!" (List.length files) (Sys.time () -. t);
+  if !summary then
+    (
+      let found = List.sort (fun x y -> compare y x) !found in
+      Printf.printf "\nSummary:\n\n%!";
+      List.iter (fun (d,a,b) -> Printf.printf "- %.02f%%: %s / %s\n%!" (100. *. d) a b) found
+    )
