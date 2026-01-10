@@ -158,7 +158,7 @@ let () =
         (
           (* log "\nFound %s / %s: %.02f%% (%d / %d)\n" fs ft (100. *. d) k n *)
           log "\nFound %.02f%% similarity (distance: %d / length: %d):\n- %s\n- %s\n" (100. *. d) k n fs ft;
-          if !summary then found := (d,fs,ft) :: !found
+          if !summary then found := (d,k,n,fs,ft) :: !found
         )
 
   in
@@ -185,5 +185,5 @@ let () =
     (
       let found = List.sort (fun x y -> compare y x) !found in
       Printf.printf "\nSummary:\n\n%!";
-      List.iter (fun (d,a,b) -> Printf.printf "- %.02f%%: %s / %s\n%!" (100. *. d) a b) found
+      List.iter (fun (d,k,n,a,b) -> Printf.printf "- %.02f%% (%d%% / %d%%): %s / %s\n%!" (100. *. d) k n a b) found
     )
