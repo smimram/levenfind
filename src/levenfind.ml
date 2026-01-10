@@ -179,11 +179,11 @@ let () =
       let domains = List.init num_domains (fun _ -> Domain.spawn task) in
       List.iter Domain.join domains;
     );
-  print_newline ();
+  log "\n";
   log "Compared %d files in %.02f seconds.\n%!" (List.length files) (Sys.time () -. t);
   if !summary then
     (
       let found = List.sort (fun x y -> compare y x) !found in
-      Printf.printf "\nSummary:\n\n%!";
+      log "\nSummary:\n\n%!";
       List.iter (fun (d,k,n,a,b) -> log "- %.02f%% (%d / %d): %s / %s\n%!" (100. *. d) k n a b) found
     )
