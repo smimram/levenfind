@@ -99,16 +99,16 @@ let () =
   Printf.printf "Considering %d pairs of files\n%!" (Array.length files2);
   let k = Atomic.make 0 in
   let kmax = Array.length files2 in
+  let log_mutex = Mutex.create () in
+  let log_oc = if !log_file = "" then None else Some (open_out !log_file) in
   let log =
-    let m = Mutex.create () in
-    let oc = if !log_file = "" then None else Some (open_out !log_file) in
     fun fmt ->
     Printf.ksprintf
       (fun s ->
-        Mutex.lock m;
+        Mutex.lock log_mutex;
         print_string s;
-        Option.iter (fun oc -> output_string oc s; flush oc) oc;
-        Mutex.unlock m
+        Option.iter (fun oc -> output_string oc s; flush oc) log_oc;
+        Mutex.unlock log_mutex
       ) fmt
   in
   let t0 = Unix.time () in
@@ -180,10 +180,10 @@ let () =
       List.iter Domain.join domains;
     );
   print_newline ();
-  Printf.printf "Compared %d files in %.02f seconds.\n%!" (List.length files) (Sys.time () -. t);
+  log "Compared %d files in %.02f seconds.\n%!" (List.length files) (Sys.time () -. t);
   if !summary then
     (
       let found = List.sort (fun x y -> compare y x) !found in
       Printf.printf "\nSummary:\n\n%!";
-      List.iter (fun (d,k,n,a,b) -> Printf.printf "- %.02f%% (%d / %d): %s / %s\n%!" (100. *. d) k n a b) found
+      List.iter (fun (d,k,n,a,b) -> log "- %.02f%% (%d / %d): %s / %s\n%!" (100. *. d) k n a b) found
     )
