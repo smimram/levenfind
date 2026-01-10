@@ -185,5 +185,5 @@ let () =
     (
       let found = List.sort (fun x y -> compare y x) !found in
       Printf.printf "\nSummary:\n\n%!";
-      List.iter (fun (d,k,n,a,b) -> Printf.printf "- %.02f%% (%d%% / %d%%): %s / %s\n%!" (100. *. d) k n a b) found
+      List.iter (fun (d,k,n,a,b) -> Printf.printf "- %.02f%% (%d / %d): %s / %s\n%!" (100. *. d) k n a b) found
     )
