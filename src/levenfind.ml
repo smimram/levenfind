@@ -38,6 +38,7 @@ let filename = ref false
 let summary = ref false
 let found = ref []
 let distance = ref `OSA
+let same_name = ref false
 
 let rec find_files ?(recursive=false) dir =
   (* Printf.printf "find in %s\n%!" dir; *)
@@ -68,6 +69,7 @@ let () =
          "--non-recursive", Arg.Unit (fun () -> recursive := false), " Do not recurse into folders.";
          "--parallelism", Arg.Set_int domains, " Number of threads to be run concurrently.";
          "--quiet", Arg.Unit (fun () -> verbosity := Quiet), " Do not display warnings.";
+         "--same-name", Arg.Set same_name, " Only compare file with same name.";
          "--size", Arg.Set_int max_file_size, Printf.sprintf " Maximum file size in octets (default: %d)." !max_file_size;
          "--threshold", Arg.Float (fun x -> threshold := x /. 100.), (Printf.sprintf " Threshold above which matching files are displayed (between 0 and 100%%, default is %.00f%%)." (!threshold *. 100.));
          "--summary", Arg.Set summary, " Show summary in the end (sorted by distance).";
@@ -95,7 +97,9 @@ let () =
       Printf.printf "Considering %d files\n%!" (List.length files);
       List.iter (Printf.printf "Considering %s\n%!") files
     );
-  let files2 = List.pairs files |> Array.of_list in
+  let files2 = List.pairs files in
+  let files2 = if !same_name then List.filter (fun (f1,f2) -> Filename.basename f1 = Filename.basename f2) files2 else files2 in
+  let files2 = Array.of_list files2 in
   Printf.printf "Considering %d pairs of files\n%!" (Array.length files2);
   let k = Atomic.make 0 in
   let kmax = Array.length files2 in

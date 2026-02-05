@@ -3,7 +3,8 @@
 
 - Much more memory efficient implementation.
 - Use stdlib's implementation of OSA by default.
-- Add `--summary`.
+- Add `--summary` option.
+- Add `--same-name` option.
 
 0.2.1 (2025-10-10)
 =====
