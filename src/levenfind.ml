@@ -59,6 +59,7 @@ let () =
   Arg.parse
     (Arg.align
        [
+         "--distance", Arg.String set_distance, Printf.sprintf " Distance to use. Default is `OSA` which takes in account transpositions, `Levenstein` (without transpositions) is also available.";
          "--extension", Arg.String (fun ext -> extensions := ext :: !extensions), " Consider only files with given extension.";
          "--exclude", Arg.String (fun e -> exclude := Str.regexp (e^"$") :: !exclude), " Exclude files whose name match the given regular expression.";
          "--filename", Arg.Set filename, " Only compare file with the same name.";
@@ -68,7 +69,6 @@ let () =
          "--parallelism", Arg.Set_int domains, " Number of threads to be run concurrently.";
          "--quiet", Arg.Unit (fun () -> verbosity := Quiet), " Do not display warnings.";
          "--size", Arg.Set_int max_file_size, Printf.sprintf " Maximum file size in octets (default: %d)." !max_file_size;
-         "--distance", Arg.String set_distance, Printf.sprintf " Distance to use. Default is `OSA` which takes in account transpositions, `Levenstein` (without transpositions) is also available.";
          "--threshold", Arg.Float (fun x -> threshold := x /. 100.), (Printf.sprintf " Threshold above which matching files are displayed (between 0 and 100%%, default is %.00f%%)." (!threshold *. 100.));
          "--summary", Arg.Set summary, " Show summary in the end (sorted by distance).";
          "--verbose", Arg.Unit (fun () -> verbosity := Verbose), " Display more messages.";
